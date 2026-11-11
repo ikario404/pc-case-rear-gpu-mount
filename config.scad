@@ -34,9 +34,9 @@ psu_plate_thickness = 5.0;
 psu_screw_hole_d = 4.0;
 psu_screw_head_d = 7.8;
 
-// Découpe centrale pour la prise secteur C13/C14 et l'interrupteur I/O
-psu_receptacle_width  = 104.0;
-psu_receptacle_height = 50.0;
+// Découpe centrale agrandie pour dégager l'espace face alimentation (prise secteur C13/C14, interrupteur I/O et ventilation)
+psu_receptacle_width  = 118.0;
+psu_receptacle_height = 62.0;
 
 /* [Interface Riser PCIe] */
 // Entraxe des trous de vis de fixation du riser PCB (mm)

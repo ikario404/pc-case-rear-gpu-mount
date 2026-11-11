@@ -2,22 +2,31 @@
 // ProArt PA602 - Support GPU Externe sur vis PSU
 // Fichier : psu_bracket.scad
 // Description : Platine de fixation sur la face arrière de l'alimentation ATX
-//               Architecture en poutres C-Channel auto-porteuses (zéro support FDM)
+//               - Empreintes ATX inversées gauche-droite (conformes au boîtier PA602)
+//               - Espace face alimentation agrandi (118 x 62 mm)
+//               - Évidements rectangulaires sur les deux faces latérales (flancs)
 // =============================================================================
 
 include <config.scad>;
 
 // Coordonnées des trous de vis ATX par rapport au centre de la face PSU (150x86mm)
+// Inversion gauche-droite appliquée (X -> -X) conformément au montage réel PA602 :
+// - Haut-Gauche : [-69, 37]
+// - Haut-Droite : [69, 37]
+// - Bas-Gauche  : [-45, -37] (Inversé, cas réel utilisateur)
+// - Bas-Droite  : [69, -27]  (Inversé, cas réel utilisateur)
 atx_holes_standard = [
-    [-69,  37], // Haut - Gauche (Norme Intel ATX)
-    [ 69,  37], // Haut - Droite (Norme Intel ATX)
-    [ 45, -37], // Bas - Droite  (Norme Intel ATX)
-    [-69, -27], // Bas - Gauche  (Norme Intel ATX)
-    // Trous symétriques pour alimentations montées ventilateur vers le haut :
-    [ 69, -37],
+    [-69,  37], // Haut - Gauche
+    [ 69,  37], // Haut - Droite
+    [-45, -37], // Bas - Gauche (Inversé - PA602)
+    [ 69, -27], // Bas - Droite (Inversé - PA602)
+    // Trous symétriques assurant une compatibilité universelle
+    [ 45, -37],
+    [-69, -27],
     [-69, -37],
+    [ 69, -37],
     [-45,  37],
-    [ 69, -27]
+    [ 45,  37]
 ];
 
 // Positions Y des 2 vis M4 par bras (dans le repère global)
@@ -49,33 +58,40 @@ module side_c_beam(side = 1) {
     // Décalage Y pour monter de z_plate_top (+49) à z_top (+60) à 45° sans porte-à-faux
     y_chamfer = max(0, z_top - z_plate_top);
 
-    union() {
-        // 1. Semelle supérieure (reçoit le riser_tray à Z = z_top)
-        hull() {
-            // Base contre la platine PSU (s'arrête à Z = +49 à Y = 0)
-            translate([x_start, 0, z_plate_top - arm_thickness])
-                cube([flange_width, 1, arm_thickness]);
-            // Montée à 45° vers Z = z_top
-            translate([x_start, y_chamfer + 1, z_top - arm_thickness])
-                cube([flange_width, 1, arm_thickness]);
-            // Extrémité sous le riser_tray
-            translate([x_start, y_top_end - 1, z_top - arm_thickness])
-                cube([flange_width, 1, arm_thickness]);
+    difference() {
+        union() {
+            // 1. Semelle supérieure (reçoit le riser_tray à Z = z_top)
+            hull() {
+                translate([x_start, 0, z_plate_top - arm_thickness])
+                    cube([flange_width, 1, arm_thickness]);
+                translate([x_start, y_chamfer + 1, z_top - arm_thickness])
+                    cube([flange_width, 1, arm_thickness]);
+                translate([x_start, y_top_end - 1, z_top - arm_thickness])
+                    cube([flange_width, 1, arm_thickness]);
+            }
+
+            // 2. Semelle inférieure (Z = -49 à -39, reçoit le support_foot)
+            translate([x_start, 0, z_bot])
+                cube([flange_width, y_bot_end, arm_thickness]);
+
+            // 3. Âme extérieure de liaison (relie semelle basse et semelle haute -> poutre en C)
+            hull() {
+                translate([x_web, 0, z_bot])
+                    cube([web_w, y_bot_end, z_plate_top - z_bot]);
+                translate([x_web, y_chamfer + 1, z_bot])
+                    cube([web_w, y_bot_end - y_chamfer - 1, z_top - z_bot]);
+                translate([x_web, y_top_end - 1, z_top - arm_thickness])
+                    cube([web_w, 1, arm_thickness]);
+            }
         }
 
-        // 2. Semelle inférieure (Z = -49 à -39, reçoit le support_foot)
-        translate([x_start, 0, z_bot])
-            cube([flange_width, y_bot_end, arm_thickness]);
-
-        // 3. Âme extérieure de liaison (relie semelle basse et semelle haute -> poutre en C)
-        hull() {
-            translate([x_web, 0, z_bot])
-                cube([web_w, y_bot_end, z_plate_top - z_bot]);
-            translate([x_web, y_chamfer + 1, z_bot])
-                cube([web_w, y_bot_end - y_chamfer - 1, z_top - z_bot]);
-            translate([x_web, y_top_end - 1, z_top - arm_thickness])
-                cube([web_w, 1, arm_thickness]);
-        }
+        // --- DÉCOUPE RECTANGULAIRE SUR LA FACE LATÉRALE (Demande utilisateur) ---
+        // Évidement d'un rectangle propre sur le flanc latéral pour alléger et ventiler
+        side_cutout_y = 16.0;
+        side_cutout_len = standoff_depth - 18.0; // 42 mm
+        side_cutout_h = 56.0;                    // 56 mm
+        translate([x_web - 1, side_cutout_y, -side_cutout_h/2])
+            cube([web_w + 2, side_cutout_len, side_cutout_h]);
     }
 }
 
@@ -89,11 +105,11 @@ module psu_bracket() {
             translate([-psu_plate_width/2, 0, -psu_plate_height/2])
                 cube([psu_plate_width, psu_plate_thickness, psu_plate_height]);
 
-            // B. Poutres latérales gauche et droite
+            // B. Poutres latérales gauche et droite avec fenêtres rectangulaires
             side_c_beam(-1);
             side_c_beam(1);
 
-            // C. Bossages de renfort autour des vis ATX basses proches de la découpe
+            // C. Bossages de renfort renforcés pour TOUS les trous ATX (normaux et inversés)
             for (pos = atx_holes_standard) {
                 translate([pos[0], 0, pos[1]])
                     rotate([-90, 0, 0])
@@ -103,15 +119,15 @@ module psu_bracket() {
 
         // --- DÉCOUPES ---
 
-        // 1. Évidement central pour prise secteur C13/C14 et interrupteur I/O
+        // 1. Évidement agrandi pour la face de l'alimentation (118 x 62 mm)
         difference() {
             translate([0, psu_plate_thickness/2, 0])
                 cube([psu_receptacle_width, psu_plate_thickness + 4, psu_receptacle_height], center = true);
-            // Préserver la matière autour des trous de vis ATX intérieurs (X = ±45, Z = ±37)
+            // Préserver la matière autour des trous de vis ATX intérieurs (X = ±45, Z = -37)
             for (pos = atx_holes_standard) {
                 translate([pos[0], -1, pos[1]])
                     rotate([-90, 0, 0])
-                        cylinder(d = 15, h = psu_plate_thickness + 6);
+                        cylinder(d = 16, h = psu_plate_thickness + 6);
             }
         }
 
@@ -119,14 +135,7 @@ module psu_bracket() {
         translate([0, psu_plate_thickness/2, 0])
             atx_mounting_holes(d = psu_screw_hole_d, h = 40);
 
-        // 3. Lamages pour les têtes de vis ATX (accessibles depuis l'arrière +Y)
-        for (pos = atx_holes_standard) {
-            translate([pos[0], psu_plate_thickness, pos[1]])
-                rotate([-90, 0, 0])
-                    cylinder(d = psu_screw_head_d, h = 30);
-        }
-
-        // 4. Trous de fixation M4 + empreintes d'écrous M4 sur la semelle supérieure
+        // 3. Trous de fixation M4 + empreintes d'écrous M4 sur la semelle supérieure
         for (side = [-1, 1]) {
             x_pos = side * m4_bolt_x;
             for (y_pos = [m4_bolt_y1, m4_bolt_y2]) {
@@ -139,7 +148,7 @@ module psu_bracket() {
             }
         }
 
-        // 5. Trous de fixation M4 sur la semelle inférieure pour les pieds d'appui (support_foot)
+        // 4. Trous de fixation M4 sur la semelle inférieure pour les pieds d'appui (support_foot)
         for (side = [-1, 1]) {
             x_pos = side * m4_bolt_x;
             translate([x_pos, standoff_depth + 13, z_bot - 1])
