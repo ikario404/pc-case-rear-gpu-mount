@@ -38,6 +38,13 @@ psu_screw_head_d = 7.8;
 psu_receptacle_width  = 118.0;
 psu_receptacle_height = 62.0;
 
+/* [Évidements latéraux d'allègement (Flancs)] */
+// Évidement en forme de trapèze sur chaque flanc latéral (plus long en haut qu'en bas)
+side_cutout_len_top = 68.0; // Longueur du bord haut du trapèze (mm)
+side_cutout_len_bot = 42.0; // Longueur du bord bas du trapèze (mm)
+side_cutout_h       = 56.0; // Hauteur de l'évidement (mm)
+side_cutout_y       = 16.0; // Début en Y après le renfort de la platine frontale
+
 /* [Interface Riser PCIe] */
 // Entraxe des trous de vis de fixation du riser PCB (mm)
 // Typiquement 108mm (Linkup, ADT-Link, Lian-Li), 125mm ou 100mm selon modèle

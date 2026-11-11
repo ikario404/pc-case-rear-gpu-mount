@@ -85,13 +85,16 @@ module side_c_beam(side = 1) {
             }
         }
 
-        // --- DÉCOUPE RECTANGULAIRE SUR LA FACE LATÉRALE (Demande utilisateur) ---
-        // Évidement d'un rectangle propre sur le flanc latéral pour alléger et ventiler
-        side_cutout_y = 16.0;
-        side_cutout_len = standoff_depth - 18.0; // 42 mm
-        side_cutout_h = 56.0;                    // 56 mm
-        translate([x_web - 1, side_cutout_y, -side_cutout_h/2])
-            cube([web_w + 2, side_cutout_len, side_cutout_h]);
+        // --- DÉCOUPE TRAPÉZOÏDALE SUR LA FACE LATÉRALE (Demande utilisateur) ---
+        // Évidement en forme de trapèze : bord haut allongé, bord bas préservé
+        hull() {
+            // Bord inférieur (court)
+            translate([x_web - 1, side_cutout_y, -side_cutout_h/2])
+                cube([web_w + 2, side_cutout_len_bot, 0.1]);
+            // Bord supérieur (allongé)
+            translate([x_web - 1, side_cutout_y, side_cutout_h/2 - 0.1])
+                cube([web_w + 2, side_cutout_len_top, 0.1]);
+        }
     }
 }
 

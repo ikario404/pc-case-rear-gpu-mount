@@ -51,7 +51,7 @@ module dummy_psu_rear() {
 }
 
 module dummy_gpu() {
-    gpu_length    = 300.0;
+    gpu_length    = 229.0;
     gpu_height    = 130.0;
     gpu_thickness = gpu_slots * pcie_slot_pitch; // ~61mm pour 3 slots
 
@@ -93,8 +93,8 @@ module dummy_gpu() {
 
     // 5. Ventilateurs stylisés (orientés vers l'extérieur +Y)
     color([0.12, 0.12, 0.12, 0.75]) {
-        for (i = [0 : 2]) {
-            translate([bracket_face_x + 52 + (i * 95), backplate_y + gpu_thickness, 11.0 + (gpu_height - 11.0)/2])
+        for (i = [0 : 1]) {
+            translate([bracket_face_x + 66 + (i * 95), backplate_y + gpu_thickness, 11.0 + (gpu_height - 11.0)/2])
                 rotate([-90, 0, 0])
                     cylinder(d = 88, h = 2.5);
         }
