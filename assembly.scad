@@ -51,9 +51,10 @@ module dummy_psu_rear() {
 }
 
 module dummy_gpu() {
-    gpu_length    = 229.0;
-    gpu_height    = 130.0;
-    gpu_thickness = gpu_slots * pcie_slot_pitch; // ~61mm pour 3 slots
+    // Cotes exactes MSI GeForce RTX 5060 Ti 16G VENTUS 2X OC PLUS (V535-005R) : 227 x 127 x 41 mm (2 slots)
+    gpu_length    = 227.0;
+    gpu_height    = 127.0;
+    gpu_thickness = 41.0;
 
     bracket_face_x = -riser_hole_spacing_x/2 - 12.5; // -66.5 mm
     pcb_y          = riser_Axis_y;                   // 20.0 mm

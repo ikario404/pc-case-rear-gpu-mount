@@ -3,8 +3,9 @@
 // Fichier : psu_bracket.scad
 // Description : Platine de fixation sur la face arrière de l'alimentation ATX
 //               - Empreintes ATX inversées gauche-droite (conformes au boîtier PA602)
-//               - Espace face alimentation agrandi (118 x 62 mm)
-//               - Évidements rectangulaires sur les deux faces latérales (flancs)
+//               - Espace face alimentation agrandi (138 x 67 mm)
+//               - Évidements trapézoïdaux allégés sur les deux flancs latéraux
+//               - Puits de vis ATX et rainure de dégagement pour équerre PCIe
 // =============================================================================
 
 include <config.scad>;
@@ -138,7 +139,15 @@ module psu_bracket() {
         translate([0, psu_plate_thickness/2, 0])
             atx_mounting_holes(d = psu_screw_hole_d, h = 40);
 
-        // 3. Trous de fixation M4 + empreintes d'écrous M4 sur la semelle supérieure
+        // 3. Lamages (puits de vis) pour les têtes de vis ATX (accessibles depuis l'arrière +Y)
+        // Creuse de 2.5mm dans la platine frontale et dégage les semelles pour le tournevis
+        for (pos = atx_holes_standard) {
+            translate([pos[0], psu_plate_thickness - 2.5, pos[1]])
+                rotate([-90, 0, 0])
+                    cylinder(d = psu_screw_head_d, h = 25);
+        }
+
+        // 4. Trous de fixation M4 + empreintes d'écrous M4 sur la semelle supérieure
         for (side = [-1, 1]) {
             x_pos = side * m4_bolt_x;
             for (y_pos = [m4_bolt_y1, m4_bolt_y2]) {
@@ -151,7 +160,7 @@ module psu_bracket() {
             }
         }
 
-        // 4. Trous de fixation M4 sur la semelle inférieure pour les pieds d'appui (support_foot)
+        // 5. Trous de fixation M4 sur la semelle inférieure pour les pieds d'appui (support_foot)
         for (side = [-1, 1]) {
             x_pos = side * m4_bolt_x;
             translate([x_pos, standoff_depth + 13, z_bot - 1])
@@ -160,6 +169,11 @@ module psu_bracket() {
             translate([x_pos, standoff_depth + 13, z_bot + arm_thickness - 3.5])
                 cylinder(d = 8.2, h = 5.0);
         }
+
+        // 6. Rainure de dégagement (3.5mm de profondeur) sur le bras supérieur gauche
+        // Alignée sous la fente traversante du riser_tray pour accueillir la pointe des languettes PCIe
+        translate([-riser_hole_spacing_x/2 - 15.0, standoff_depth + 13.0, z_top - 3.5])
+            cube([3.5, riser_tray_depth - 26.0, 5.0]);
     }
 }
 

@@ -32,22 +32,36 @@ module riser_tray() {
                 cube([tray_w, tray_d, tray_h]);
 
             // 2. Nervures longitudinales de rigidification sous/sur les bords avant et arrière
+            // Nervure arrière interrompue au centre (96mm) pour laisser passer à plat la nappe 90° du Kolink PGW-RC-MRK-010
             translate([-tray_w/2, 0, tray_h])
-                cube([tray_w, 4.0, 3.0]);
+                cube([(tray_w - riser_cable_slot_w)/2, 4.0, 3.0]);
+            translate([riser_cable_slot_w/2, 0, tray_h])
+                cube([(tray_w - riser_cable_slot_w)/2, 4.0, 3.0]);
+            // Nervure avant continue
             translate([-tray_w/2, tray_d - 4.0, tray_h])
                 cube([tray_w, 4.0, 3.0]);
 
-            // 3. Entretoises (Standoffs) pour le PCB du riser PCIe
+            // 3. Entretoises (Standoffs) oblongues pour le PCB du riser PCIe (Kolink PGW-RC-MRK-010)
             if (riser_hole_spacing_y == 0) {
-                for (x_pos = [-riser_hole_spacing_x/2, riser_hole_spacing_x/2]) {
-                    translate([x_pos, riser_Axis_y, tray_h])
-                        cylinder(d = riser_screw_d + 6.5, h = riser_standoff_h);
+                for (side = [-1, 1]) {
+                    x_pos = side * riser_hole_spacing_x/2;
+                    hull() {
+                        translate([x_pos - riser_hole_slot_tol_x, riser_Axis_y, tray_h])
+                            cylinder(d = 6.6, h = riser_standoff_h);
+                        translate([x_pos + riser_hole_slot_tol_x, riser_Axis_y, tray_h])
+                            cylinder(d = 6.6, h = riser_standoff_h);
+                    }
                 }
             } else {
-                for (x_pos = [-riser_hole_spacing_x/2, riser_hole_spacing_x/2]) {
+                for (side = [-1, 1]) {
+                    x_pos = side * riser_hole_spacing_x/2;
                     for (y_off = [-riser_hole_spacing_y/2, riser_hole_spacing_y/2]) {
-                        translate([x_pos, riser_Axis_y + y_off, tray_h])
-                            cylinder(d = riser_screw_d + 6.5, h = riser_standoff_h);
+                        hull() {
+                            translate([x_pos - riser_hole_slot_tol_x, riser_Axis_y + y_off, tray_h])
+                                cylinder(d = 6.6, h = riser_standoff_h);
+                            translate([x_pos + riser_hole_slot_tol_x, riser_Axis_y + y_off, tray_h])
+                                cylinder(d = 6.6, h = riser_standoff_h);
+                        }
                     }
                 }
             }
@@ -85,18 +99,21 @@ module riser_tray() {
                     cube([4.5, tray_d, 4.0]);
             }
 
-            // 5. Berceau d'appui arrière anti-affaissement (anti-sag) côté +X
-            // Soutient la tranche inférieure du PCB et du carénage à la hauteur du slot PCIe
-            cradle_x = riser_hole_spacing_x/2 + 6.0; // +60.0 mm (entre bossage riser et vis M4)
-            cradle_z = riser_standoff_h + 11.0;      // Hauteur de la tranche inférieure du GPU
-            translate([cradle_x, riser_Axis_y - 10, tray_h]) {
-                // Socle d'appui sous le PCB et la backplate
-                cube([8.0, 22.0, cradle_z]);
+            // 5. Berceau d'appui arrière anti-affaissement (anti-sag) côté +X (+10mm en hauteur)
+            // Ajusté à l'épaisseur réelle de la MSI RTX 5060 Ti V535-005R (41mm + 1mm de jeu = 42mm)
+            cradle_x   = riser_hole_spacing_x/2 + 6.0; // +60.0 mm (entre bossage riser et vis M4)
+            cradle_w   = 7.5;                          // De +60.0 à +67.5 mm (dégage les lamages M4 à 68.9mm)
+            cradle_z   = riser_standoff_h + 21.0;      // Hauteur augmentée de +10mm (26mm)
+            lip_d      = 4.5;
+            cradle_d   = gpu_thickness_mm + 2 * lip_d; // 42 + 9 = 51.0 mm
+            translate([cradle_x, riser_Axis_y - 10.0, tray_h]) {
+                // Socle d'appui sous le PCB et le carénage
+                cube([cradle_w, cradle_d, cradle_z]);
                 // Lèvre arrière de maintien (côté backplate -Y)
-                cube([8.0, 4.5, cradle_z + 10.0]);
-                // Lèvre avant de maintien (côté radiateur +Y)
-                translate([0, 17.5, 0])
-                    cube([8.0, 4.5, cradle_z + 10.0]);
+                cube([cradle_w, lip_d, cradle_z + 10.0]);
+                // Lèvre avant de maintien (côté carénage / ventilateurs +Y, écartée à 42mm)
+                translate([0, lip_d + gpu_thickness_mm, 0])
+                    cube([cradle_w, lip_d, cradle_z + 10.0]);
             }
         }
 
@@ -106,21 +123,40 @@ module riser_tray() {
         translate([-riser_cable_slot_w/2, riser_Axis_y - riser_cable_slot_d/2, -1])
             cube([riser_cable_slot_w, riser_cable_slot_d, tray_h + 6]);
 
-        // B. Perçages M3 pour visser le PCB du riser + lamages inférieurs
+        // B. Perçages oblongs (boutonnières) M3 pour visser le PCB du riser + lamages inférieurs
+        // Accepte un entraxe de 103 à 113 mm (couvre le Kolink PGW-RC-MRK-010)
         if (riser_hole_spacing_y == 0) {
-            for (x_pos = [-riser_hole_spacing_x/2, riser_hole_spacing_x/2]) {
-                translate([x_pos, riser_Axis_y, -1])
-                    cylinder(d = riser_screw_d, h = tray_h + riser_standoff_h + 4);
-                translate([x_pos, riser_Axis_y, -0.5])
-                    cylinder(d = 6.5, h = 3.0);
+            for (side = [-1, 1]) {
+                x_pos = side * riser_hole_spacing_x/2;
+                hull() {
+                    translate([x_pos - riser_hole_slot_tol_x, riser_Axis_y, -1])
+                        cylinder(d = riser_screw_d, h = tray_h + riser_standoff_h + 4);
+                    translate([x_pos + riser_hole_slot_tol_x, riser_Axis_y, -1])
+                        cylinder(d = riser_screw_d, h = tray_h + riser_standoff_h + 4);
+                }
+                hull() {
+                    translate([x_pos - riser_hole_slot_tol_x, riser_Axis_y, -0.5])
+                        cylinder(d = 6.2, h = 3.0);
+                    translate([x_pos + riser_hole_slot_tol_x, riser_Axis_y, -0.5])
+                        cylinder(d = 6.2, h = 3.0);
+                }
             }
         } else {
-            for (x_pos = [-riser_hole_spacing_x/2, riser_hole_spacing_x/2]) {
+            for (side = [-1, 1]) {
+                x_pos = side * riser_hole_spacing_x/2;
                 for (y_off = [-riser_hole_spacing_y/2, riser_hole_spacing_y/2]) {
-                    translate([x_pos, riser_Axis_y + y_off, -1])
-                        cylinder(d = riser_screw_d, h = tray_h + riser_standoff_h + 4);
-                    translate([x_pos, riser_Axis_y + y_off, -0.5])
-                        cylinder(d = 6.5, h = 3.0);
+                    hull() {
+                        translate([x_pos - riser_hole_slot_tol_x, riser_Axis_y + y_off, -1])
+                            cylinder(d = riser_screw_d, h = tray_h + riser_standoff_h + 4);
+                        translate([x_pos + riser_hole_slot_tol_x, riser_Axis_y + y_off, -1])
+                            cylinder(d = riser_screw_d, h = tray_h + riser_standoff_h + 4);
+                    }
+                    hull() {
+                        translate([x_pos - riser_hole_slot_tol_x, riser_Axis_y + y_off, -0.5])
+                            cylinder(d = 6.2, h = 3.0);
+                        translate([x_pos + riser_hole_slot_tol_x, riser_Axis_y + y_off, -0.5])
+                            cylinder(d = 6.2, h = 3.0);
+                    }
                 }
             }
         }
@@ -143,9 +179,9 @@ module riser_tray() {
                 cylinder(d = 3.4, h = 15);
         }
 
-        // E. Rainure inférieure pour loger les languettes basses de l'équerre métallique PCIe
-        translate([bracket_face_x - 2.5, pillar_d + 1.0, 1.5])
-            cube([3.5, tray_d - 2*pillar_d - 2.0, tray_h + 5.0]);
+        // E. Fente traversante inférieure pour passer les languettes basses de l'équerre métallique PCIe
+        translate([bracket_face_x - 2.5, pillar_d + 1.0, -1])
+            cube([3.5, tray_d - 2*pillar_d - 2.0, tray_h + 7.0]);
 
         // F. Passages pour colliers de serrage (zip-ties) de maintien des câbles
         for (zip_x = [-35, 35]) {

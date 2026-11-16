@@ -35,20 +35,22 @@ psu_screw_hole_d = 4.0;
 psu_screw_head_d = 7.8;
 
 // Découpe centrale agrandie pour dégager l'espace face alimentation (prise secteur C13/C14, interrupteur I/O et ventilation)
-psu_receptacle_width  = 118.0;
-psu_receptacle_height = 62.0;
+psu_receptacle_width  = 138.0;
+psu_receptacle_height = 67.0;
 
 /* [Évidements latéraux d'allègement (Flancs)] */
 // Évidement en forme de trapèze sur chaque flanc latéral (plus long en haut qu'en bas)
-side_cutout_len_top = 68.0; // Longueur du bord haut du trapèze (mm)
-side_cutout_len_bot = 42.0; // Longueur du bord bas du trapèze (mm)
-side_cutout_h       = 56.0; // Hauteur de l'évidement (mm)
-side_cutout_y       = 16.0; // Début en Y après le renfort de la platine frontale
+side_cutout_len_top = 78.0; // Longueur du bord haut du trapèze (mm)
+side_cutout_len_bot = 52.0; // Longueur du bord bas du trapèze (mm)
+side_cutout_h       = 66.0; // Hauteur de l'évidement (mm)
+side_cutout_y       = 20.0; // Début en Y après le renfort de la platine frontale
 
-/* [Interface Riser PCIe] */
-// Entraxe des trous de vis de fixation du riser PCB (mm)
-// Typiquement 108mm (Linkup, ADT-Link, Lian-Li), 125mm ou 100mm selon modèle
+/* [Interface Riser PCIe (Kolink PGW-RC-MRK-010)] */
+// Entraxe nominal des trous de vis de fixation du riser PCB (mm)
 riser_hole_spacing_x = 108.0;
+
+// Plage de réglage oblongue (+/- en X) pour s'adapter aux variations d'entraxe (104 à 112mm)
+riser_hole_slot_tol_x = 2.0;
 
 // Entraxe en Y si le riser possède 4 trous (mettre 0 si seulement 2 trous centrés)
 riser_hole_spacing_y = 0.0;
@@ -67,16 +69,19 @@ riser_tray_width     = psu_plate_width; // 172.0 mm
 riser_tray_depth     = 75.0;            // Profondeur accueillant un GPU 3 à 3.5 slots
 riser_tray_thickness = 5.0;
 
-// Fente de passage pour nappe souple sous le riser (compatible risers 90° et 180°)
-riser_cable_slot_w = 92.0;
+// Fente de passage pour nappe souple sous le riser (compatible Kolink PGW-RC-MRK-010, risers 90° et 180°)
+riser_cable_slot_w = 96.0;
 riser_cable_slot_d = 14.0;
 
-/* [Tour de verrouillage Équerre PCIe (PCIe Bracket Tower)] */
-// Nombre de slots du GPU (2, 2.5, 3 ou 3.5 slots)
+/* [Tour de verrouillage Équerre PCIe & GPU (MSI RTX 5060 Ti V535-005R)] */
+// Nombre de trous de slots sur le portique (3 trous pour compatibilité 2 à 3 slots)
 gpu_slots = 3;
 
-// Hauteur standard de l'équerre métallique PCIe au-dessus du PCB du riser (mm)
-pcie_bracket_screw_h = 112.0;
+// Épaisseur interne du berceau d'appui GPU (MSI V535-005R = 41mm + 1mm de jeu = 42mm)
+gpu_thickness_mm = 42.0;
+
+// Hauteur de l'équerre métallique PCIe au-dessus du PCB du riser (mm) (+5mm pour dégagement optimal)
+pcie_bracket_screw_h = 117.0;
 
 // Pas standard entre slots PCIe (20.32 mm / 0.8 pouce)
 pcie_slot_pitch = 20.32;
