@@ -2,7 +2,7 @@
 
 Support externe 3D paramétrique (OpenSCAD) conçu pour installer proprement et solidement un 3ᵉ GPU à l'arrière d'un boîtier **ASUS ProArt PA602**, ancré directement sur les vis de l'alimentation ATX avec déport ventilé et décharge verticale au sol.
 
-![Vue d'ensemble de l'assemblage](previews/assembly_preview.png)
+![Rendu studio de l'assemblage](previews/blender_assembly_hero.png)
 
 ---
 
@@ -86,6 +86,8 @@ Le modèle est 100 % paramétrique. Ouvrez [`config.scad`](config.scad) dans Ope
 ---
 
 ## 🖨️ Conseils d'Impression 3D (FDM)
+
+![Pièces prêtes à imprimer](previews/blender_printed_parts.png)
 
 - **Orientation :** Toutes les pièces dans [`stl_output/`](stl_output/) sont déjà orientées à plat sur la surface d'adhésion optimale (`Z >= 0`).
 - **Supports :** **ZÉRO support requis** sur l'ensemble des 3 pièces (tous les angles et goussets sont conçus à $\le 45^\circ$).

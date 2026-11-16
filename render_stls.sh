@@ -24,6 +24,11 @@ xvfb-run -a openscad -o "${PREVIEW_DIR}/assembly_preview.png" --autocenter --vie
 xvfb-run -a openscad -o "${PREVIEW_DIR}/psu_bracket_preview.png" --autocenter --viewall --imgsize=1280,720 "${SCRIPT_DIR}/psu_bracket.scad"
 xvfb-run -a openscad -o "${PREVIEW_DIR}/riser_tray_preview.png" --autocenter --viewall --imgsize=1280,720 "${SCRIPT_DIR}/riser_tray.scad"
 
+if command -v blender &> /dev/null; then
+    echo "=== Génération des rendus studio photo-réalistes Blender Cycles ==="
+    blender -b -P "${SCRIPT_DIR}/scripts/render_blender.py"
+fi
+
 echo "Génération terminée avec succès dans :"
 echo " - STLs (Binaires) : ${OUTPUT_DIR}"
 echo " - Aperçus : ${PREVIEW_DIR}"
