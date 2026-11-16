@@ -1,6 +1,8 @@
-# Support Externe GPU pour ASUS ProArt PA602 (Multi-GPU / AI / Compute)
+# Support Externe GPU sur Alimentation ATX (Multi-GPU / AI / Compute)
 
-Support externe 3D paramétrique (OpenSCAD) conçu pour installer proprement et solidement un 3ᵉ GPU à l'arrière d'un boîtier **ASUS ProArt PA602**, ancré directement sur les vis de l'alimentation ATX avec déport ventilé et décharge verticale au sol.
+Support externe 3D paramétrique (OpenSCAD) conçu pour installer proprement et solidement un GPU supplémentaire à l'arrière d'un boîtier PC, ancré directement sur les vis de l'alimentation ATX avec déport ventilé et décharge verticale au sol. 
+
+*Initialement conçu et testé pour l'ASUS ProArt PA602, son empreinte universelle de fixation le rend générique et directement adaptable à la grande majorité des boîtiers et blocs d'alimentation au format ATX standard.*
 
 ![Rendu studio de l'assemblage](previews/blender_assembly_hero.png)
 
