@@ -6,6 +6,9 @@ Support externe 3D paramétrique (OpenSCAD) conçu pour installer proprement et 
 
 ![Rendu studio de l'assemblage](previews/blender_assembly_hero.png)
 
+![Rendu studio de l'assemblage](previews/printed_model.jpg)
+
+
 ---
 
 ## 🎯 Points Forts & Architecture Mécanique
